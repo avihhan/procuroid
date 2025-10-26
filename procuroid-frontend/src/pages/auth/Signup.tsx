@@ -29,7 +29,7 @@ export default function SignUp() {
             <input className="input-field" type="password" value={password} onChange={e=>setPassword(e.target.value)} required /></div>
           <button className="btn-primary w-full" disabled={loading}>{loading ? 'Signing up...' : 'Sign Up'}</button>
         </form>
-        <p className="text-sm text-gray-600 mt-4">Have an account? <Link to="/signin" className="text-primary-600">Sign in</Link></p>
+        <p className="text-sm text-gray-600 mt-4">Already have an account? <Link to="/signin" className="text-primary-600">Sign in</Link></p>
       </div>
     </div>
   );
