@@ -26,7 +26,8 @@ export default function SignUp() {
           <div><label className="block text-sm font-medium mb-1">Email</label>
             <input className="input-field" type="email" value={email} onChange={e=>setEmail(e.target.value)} required /></div>
           <div><label className="block text-sm font-medium mb-1">Password</label>
-            <input className="input-field" type="password" value={password} onChange={e=>setPassword(e.target.value)} required /></div>
+            <input className="input-field" type="password" value={password} onChange={e=>setPassword(e.target.value)} required />
+          </div>
           <button className="btn-primary w-full" disabled={loading}>{loading ? 'Signing up...' : 'Sign Up'}</button>
         </form>
         <p className="text-sm text-gray-600 mt-4">Have an account? <Link to="/signin" className="text-primary-600">Sign in</Link></p>
