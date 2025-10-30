@@ -45,14 +45,58 @@ export default function SignUp() {
         {msg && <div className="mb-3 text-sm text-green-700">{msg}</div>}
         {err && <div className="mb-3 text-sm text-red-600">{err}</div>}
         <form onSubmit={onSubmit} className="space-y-4">
-          <div><label className="block text-sm font-medium mb-1">Email</label>
-            <input className="input-field" type="email" value={email} onChange={e=>setEmail(e.target.value)} required /></div>
-          <div><label className="block text-sm font-medium mb-1">Password</label>
-            <input className="input-field" type="password" value={password} onChange={e=>setPassword(e.target.value)} required />
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium mb-1">First Name</label>
+              <input
+                className="input-field"
+                type="text"
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">Last Name</label>
+              <input
+                className="input-field"
+                type="text"
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
+                required
+              />
+            </div>
           </div>
-          <button className="btn-primary w-full" disabled={loading}>{loading ? 'Signing up...' : 'Sign Up'}</button>
+          <div>
+            <label className="block text-sm font-medium mb-1">Email</label>
+            <input
+              className="input-field"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-1">Password</label>
+            <input
+              className="input-field"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </div>
+          <button className="btn-primary w-full" disabled={loading}>
+            {loading ? 'Signing up...' : 'Sign Up'}
+          </button>
         </form>
-        <p className="text-sm text-gray-600 mt-4">Already have an account? <Link to="/signin" className="text-primary-600">Sign in</Link></p>
+        <p className="text-sm text-gray-600 mt-4">
+          Already have an account?{' '}
+          <Link to="/signin" className="text-primary-600">
+            Sign in
+          </Link>
+        </p>
       </div>
     </div>
   );
