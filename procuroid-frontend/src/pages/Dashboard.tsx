@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState} from 'react';
 import { 
   TrendingUp, 
   Clock, 
@@ -10,50 +10,9 @@ import {
   DollarSign
 } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { supabase } from '../lib/supabase'; 
 
 const Dashboard = () => {
   const [timeframe, setTimeframe] = useState('weekly');
-  const [displayName, setDisplayName] = useState('');
-
-  useEffect(() => {
-  const fetchUserData = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    
-    if (user) {
-      console.log('Full user object:', user);
-      console.log('User metadata:', user.user_metadata);
-      console.log('Display name from metadata:', user.user_metadata?.display_name);
-      console.log('First name:', user.user_metadata?.first_name);
-      console.log('Last name:', user.user_metadata?.last_name);
-
-      const metaDisplayName = user.user_metadata?.display_name;
-      
-      if (metaDisplayName) {
-        console.log('Setting display name from metadata:', metaDisplayName);
-        setDisplayName(metaDisplayName);
-      } else {
-        const { data: profile, error } = await supabase
-          .from('profiles')
-          .select('display_name')
-          .eq('id', user.id)
-          .single();
-        
-        console.log('Profile data:', profile);
-        console.log('Profile error:', error);
-        
-        if (profile?.display_name) {
-          console.log('Setting display name from profile:', profile.display_name);
-          setDisplayName(profile.display_name);
-        }
-      }
-    } else {
-      console.log('No user found in session');
-    }
-  };
-
-  fetchUserData();
-}, []);
 
   // Dummy data for expenses chart
   const expensesData = {
@@ -179,7 +138,7 @@ const Dashboard = () => {
       {/* Header */}
       <div>
         <h1 className="text-2xl font-bold text-gray-900">
-          Dashboard {displayName && `- Welcome, ${displayName}`}
+          Dashboard
         </h1>
         <p className="text-gray-600">Overview of your procurement activities</p>
       </div>
