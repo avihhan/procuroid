@@ -14,7 +14,6 @@ import { supabase } from '../lib/supabase';
 
 const Dashboard = () => {
   const [timeframe, setTimeframe] = useState('weekly');
-  const [displayName, setDisplayName] = useState('');
 
   useEffect(() => {
   const fetchUserData = async () => {
@@ -31,7 +30,6 @@ const Dashboard = () => {
       
       if (metaDisplayName) {
         console.log('Setting display name from metadata:', metaDisplayName);
-        setDisplayName(metaDisplayName);
       } else {
         const { data: profile, error } = await supabase
           .from('profiles')
@@ -44,7 +42,6 @@ const Dashboard = () => {
         
         if (profile?.display_name) {
           console.log('Setting display name from profile:', profile.display_name);
-          setDisplayName(profile.display_name);
         }
       }
     } else {
@@ -179,7 +176,7 @@ const Dashboard = () => {
       {/* Header */}
       <div>
         <h1 className="text-2xl font-bold text-gray-900">
-          Dashboard {displayName && `- Welcome, ${displayName}`}
+          Dashboard
         </h1>
         <p className="text-gray-600">Overview of your procurement activities</p>
       </div>

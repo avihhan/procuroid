@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { X, Check, ArrowRight } from 'lucide-react';
+import { sendQuoteRequest } from '../api/apiCalls';
+import type{ QuoteRequestPayload } from '../api/apiCalls';
 
 interface PlaceOrderModalProps {
   onClose: () => void;
@@ -7,7 +9,7 @@ interface PlaceOrderModalProps {
 
 const PlaceOrderModal = ({ onClose }: PlaceOrderModalProps) => {
   const [step, setStep] = useState(1);
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<QuoteRequestPayload>({
     description: '',
     orderType: '',
     productDescription: '',
@@ -24,8 +26,12 @@ const PlaceOrderModal = ({ onClose }: PlaceOrderModalProps) => {
     const { name, value, type } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: type === 'checkbox' ? (e.target as HTMLInputElement).checked : value
-    }));
+      [name]: name === 'supplierSelection'
+      ? (value as 'preferred' | 'discovery')
+      : type === 'checkbox'
+        ? (e.target as HTMLInputElement).checked
+        : value
+  }));
   };
 
   const handleNext = () => {
@@ -34,11 +40,16 @@ const PlaceOrderModal = ({ onClose }: PlaceOrderModalProps) => {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle form submission
-    console.log('Order submitted:', formData);
-    onClose();
+    try {
+      // replace with real user id from your auth/session
+      const userId = 'demo-user-id';
+      await sendQuoteRequest(userId, formData as QuoteRequestPayload);
+      onClose();
+    } catch (err) {
+      console.error('Failed to submit order:', err);
+    }
   };
 
   return (
