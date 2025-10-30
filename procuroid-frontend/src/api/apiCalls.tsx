@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'http://192.168.1.236:5000/'; // change this to your API base
+const API_BASE_URL = 'http://localhost:5000/'; // change this to your API base
 
 export interface QuoteRequestPayload {
     description: string;
