@@ -35,6 +35,10 @@ export default function SignUp() {
 
     setLoading(false);
     if (error) return setErr(error.message);
+    setFirstName('');
+    setLastName('');
+    setEmail('');
+    setPassword('');
     setMsg('Check your email to confirm your account.');
   };
 
