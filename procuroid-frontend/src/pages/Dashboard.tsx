@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { 
   TrendingUp, 
   Clock, 
@@ -10,9 +10,37 @@ import {
   DollarSign
 } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { supabase } from '../lib/supabase'; 
 
 const Dashboard = () => {
   const [timeframe, setTimeframe] = useState('weekly');
+  const [displayName, setDisplayName] = useState('');
+  
+  useEffect(() => {
+    const fetchUserData = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const metaDisplayName = user.user_metadata?.display_name;
+        
+        if (metaDisplayName) {
+          setDisplayName(metaDisplayName);
+        } else {
+          // Otherwise try from profiles table here
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('display_name')
+            .eq('id', user.id)
+            .single();
+          
+          if (profile?.display_name) {
+            setDisplayName(profile.display_name);
+          }
+        }
+      }
+    };
+
+    fetchUserData();
+  }, []);
 
   // Dummy data for expenses chart
   const expensesData = {
@@ -137,7 +165,9 @@ const Dashboard = () => {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
+        <h1 className="text-2xl font-bold text-gray-900">
+          Dashboard {displayName && `- Welcome, ${displayName}`}
+        </h1>
         <p className="text-gray-600">Overview of your procurement activities</p>
       </div>
 
