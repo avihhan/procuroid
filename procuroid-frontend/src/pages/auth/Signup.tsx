@@ -4,13 +4,35 @@ import { Link } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
 
 export default function SignUp() {
-  const [email, setEmail] = useState(''); const [password, setPassword] = useState('');
-  const [msg, setMsg] = useState<string | null>(null); const [err, setErr] = useState<string | null>(null);
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [msg, setMsg] = useState<string | null>(null);
+  const [err, setErr] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   const onSubmit = async (e: React.FormEvent) => {
-    e.preventDefault(); setLoading(true); setErr(null);
-    const { error } = await supabase.auth.signUp({ email, password });
+    e.preventDefault();
+    setLoading(true);
+    setErr(null);
+
+    
+    const displayName = `${firstName.trim()} ${lastName.trim()}`.trim();
+
+ 
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          display_name: displayName,
+          first_name: firstName.trim(),
+          last_name: lastName.trim(),
+        },
+      },
+    });
+
     setLoading(false);
     if (error) return setErr(error.message);
     setMsg('Check your email to confirm your account.');
