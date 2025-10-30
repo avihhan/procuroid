@@ -15,32 +15,45 @@ import { supabase } from '../lib/supabase';
 const Dashboard = () => {
   const [timeframe, setTimeframe] = useState('weekly');
   const [displayName, setDisplayName] = useState('');
-  
+
   useEffect(() => {
-    const fetchUserData = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        const metaDisplayName = user.user_metadata?.display_name;
+  const fetchUserData = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (user) {
+      console.log('Full user object:', user);
+      console.log('User metadata:', user.user_metadata);
+      console.log('Display name from metadata:', user.user_metadata?.display_name);
+      console.log('First name:', user.user_metadata?.first_name);
+      console.log('Last name:', user.user_metadata?.last_name);
+
+      const metaDisplayName = user.user_metadata?.display_name;
+      
+      if (metaDisplayName) {
+        console.log('Setting display name from metadata:', metaDisplayName);
+        setDisplayName(metaDisplayName);
+      } else {
+        const { data: profile, error } = await supabase
+          .from('profiles')
+          .select('display_name')
+          .eq('id', user.id)
+          .single();
         
-        if (metaDisplayName) {
-          setDisplayName(metaDisplayName);
-        } else {
-          // Otherwise try from profiles table here
-          const { data: profile } = await supabase
-            .from('profiles')
-            .select('display_name')
-            .eq('id', user.id)
-            .single();
-          
-          if (profile?.display_name) {
-            setDisplayName(profile.display_name);
-          }
+        console.log('Profile data:', profile);
+        console.log('Profile error:', error);
+        
+        if (profile?.display_name) {
+          console.log('Setting display name from profile:', profile.display_name);
+          setDisplayName(profile.display_name);
         }
       }
-    };
+    } else {
+      console.log('No user found in session');
+    }
+  };
 
-    fetchUserData();
-  }, []);
+  fetchUserData();
+}, []);
 
   // Dummy data for expenses chart
   const expensesData = {

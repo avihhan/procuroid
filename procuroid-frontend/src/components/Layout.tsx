@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard,
@@ -15,7 +15,6 @@ import PlaceOrderModal from './PlaceOrderModal';
 import NotificationCenter from './NotificationCenter';
 import { supabase } from '../lib/supabase';
 
-
 interface LayoutProps {
   children: React.ReactNode;
 }
@@ -24,7 +23,62 @@ const Layout = ({ children }: LayoutProps) => {
   const [isPlaceOrderOpen, setIsPlaceOrderOpen] = useState(false);
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [displayName, setDisplayName] = useState('');
+  const [initials, setInitials] = useState('');
   const location = useLocation();
+
+  // Fetch user's display name on component mount
+  useEffect(() => {
+    const fetchUserData = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (user) {
+        // Try to get display name from user metadata first
+        const metaDisplayName = user.user_metadata?.display_name;
+        const firstName = user.user_metadata?.first_name;
+        const lastName = user.user_metadata?.last_name;
+        
+        if (metaDisplayName) {
+          setDisplayName(metaDisplayName);
+          // Generate initials from display name
+          const names = metaDisplayName.split(' ');
+          const userInitials = names.map((n: string) => n[0]).join('').toUpperCase().slice(0, 2);
+          setInitials(userInitials);
+        } else if (firstName || lastName) {
+          // Fallback to constructing from first/last name
+          const name = `${firstName || ''} ${lastName || ''}`.trim();
+          setDisplayName(name);
+          const userInitials = `${firstName?.[0] || ''}${lastName?.[0] || ''}`.toUpperCase();
+          setInitials(userInitials);
+        } else {
+          // If using profiles table, fetch from there
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('display_name, first_name, last_name')
+            .eq('id', user.id)
+            .single();
+          
+          if (profile?.display_name) {
+            setDisplayName(profile.display_name);
+            const names = profile.display_name.split(' ');
+            const userInitials = names.map((n: string) => n[0]).join('').toUpperCase().slice(0, 2);
+            setInitials(userInitials);
+          } else if (profile?.first_name || profile?.last_name) {
+            const name = `${profile.first_name || ''} ${profile.last_name || ''}`.trim();
+            setDisplayName(name);
+            const userInitials = `${profile.first_name?.[0] || ''}${profile.last_name?.[0] || ''}`.toUpperCase();
+            setInitials(userInitials);
+          } else {
+            // Final fallback to email
+            setDisplayName(user.email || 'User');
+            setInitials(user.email?.[0].toUpperCase() || 'U');
+          }
+        }
+      }
+    };
+
+    fetchUserData();
+  }, []);
 
   const navigation = [
     { name: 'Dashboard', href: '/', icon: LayoutDashboard },
@@ -102,9 +156,13 @@ const Layout = ({ children }: LayoutProps) => {
                   className="flex items-center space-x-2 p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-colors"
                 >
                   <div className="h-8 w-8 bg-primary-100 rounded-full flex items-center justify-center">
-                    <span className="text-sm font-medium text-primary-700">JD</span>
+                    <span className="text-sm font-medium text-primary-700">
+                      {initials || 'U'}
+                    </span>
                   </div>
-                  <span className="text-sm font-medium">John Doe</span>
+                  <span className="text-sm font-medium">
+                    {displayName || 'Loading...'}
+                  </span>
                   <ChevronDown className="h-4 w-4" />
                 </button>
                 {isProfileOpen && (
@@ -117,6 +175,7 @@ const Layout = ({ children }: LayoutProps) => {
                       className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
                       onClick={async () => { await supabase.auth.signOut(); }}
                     >
+                      <LogOut className="mr-3 h-4 w-4" />
                       Logout
                     </button>
                   </div>
