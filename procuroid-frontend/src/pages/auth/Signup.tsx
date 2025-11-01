@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
+import { signUp } from '../../api/apiCalls';
 
 export default function SignUp() {
   const [firstName, setFirstName] = useState('');
@@ -17,29 +18,30 @@ export default function SignUp() {
     setLoading(true);
     setErr(null);
 
-    
-    const displayName = `${firstName.trim()} ${lastName.trim()}`.trim();
+    try {
+      // Call backend API to sign up
+      const response = await signUp({
+        email,
+        password,
+        firstName: firstName.trim(),
+        lastName: lastName.trim(),
+      });
 
- 
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: {
-          display_name: displayName,
-          first_name: firstName.trim(),
-          last_name: lastName.trim(),
-        },
-      },
-    });
-
-    setLoading(false);
-    if (error) return setErr(error.message);
-    setFirstName('');
-    setLastName('');
-    setEmail('');
-    setPassword('');
-    setMsg('Check your email to confirm your account.');
+      if (response.success) {
+        // Clear form
+        setFirstName('');
+        setLastName('');
+        setEmail('');
+        setPassword('');
+        setMsg(response.message || 'Check your email to confirm your account.');
+      } else {
+        setErr(response.error || 'Sign up failed');
+      }
+    } catch (error: any) {
+      setErr(error.response?.data?.error || error.message || 'Sign up failed');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
+import { signIn } from '../../api/apiCalls';
 
 export default function SignIn() {
   const [email, setEmail] = useState(''); const [password, setPassword] = useState('');
@@ -9,11 +10,30 @@ export default function SignIn() {
   const navigate = useNavigate();
 
   const onSubmit = async (e: React.FormEvent) => {
-    e.preventDefault(); setLoading(true); setErr(null);
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    setLoading(false);
-    if (error) return setErr(error.message);
-    navigate('/');
+    e.preventDefault(); 
+    setLoading(true); 
+    setErr(null);
+    
+    try {
+      // Call backend API to sign in
+      const response = await signIn({ email, password });
+      
+      if (response.success && response.session) {
+        // Set the session in Supabase client so future requests work
+        await supabase.auth.setSession({
+          access_token: response.session.access_token,
+          refresh_token: response.session.refresh_token,
+        });
+        
+        navigate('/');
+      } else {
+        setErr(response.error || 'Sign in failed');
+      }
+    } catch (error: any) {
+      setErr(error.response?.data?.error || error.message || 'Sign in failed');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
